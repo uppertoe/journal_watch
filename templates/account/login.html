@@ -1,0 +1,16 @@
+{% extends 'account/_base_override.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Log In{% endblock title %}
+
+{% block heading %}Log in{% endblock heading %}
+{% block description %}Enter your account details to log in to neverDrugs.io{% endblock description %}
+{% block form %}
+<form class="p-4 p-md-5 border rounded-3 bg-light" method='post'>
+    {% csrf_token %}
+    {{ form|crispy}}
+    <button class="w-100 btn btn-lg btn-primary" type="submit">Log in</button>
+    <hr class="my-4">
+    <a href='{% url 'account_reset_password' %}' class="text-muted">Forgot password?</a>
+</form>
+{% endblock form %}

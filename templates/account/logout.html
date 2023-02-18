@@ -1,0 +1,14 @@
+{% extends 'account/_base_override.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Log Out{% endblock title %}
+
+{% block heading %}Log out{% endblock heading %}
+{% block description %}Are you sure you want to log out?{% endblock description %}
+{% block form %}
+<form class="p-4 p-md-5 border rounded-3 bg-light" method='post'>
+    {% csrf_token %}
+    {{ form|crispy}}
+    <button class="w-100 btn btn-lg btn-danger" type="submit">Log out</button>
+</form>
+{% endblock form %}
