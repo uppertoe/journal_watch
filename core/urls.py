@@ -24,8 +24,8 @@ urlpatterns = [
     path('database/', admin.site.urls, name='admin'),
     # User management
     path('accounts/', include('allauth.urls')),
-    # Markdownx
-    path('markdownx/', include('markdownx.urls')),
+    # TinyMCE
+    path('tinymce/', include('tinymce.urls')),
     # Local apps
     #path('', include('pages.urls')),
 ] + static(

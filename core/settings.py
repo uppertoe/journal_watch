@@ -48,14 +48,13 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'django.forms',  # Required for overriding Markdownx widget.html
     # Third-party
     'crispy_forms',
     'crispy_bootstrap5',
     'allauth',
     'allauth.account',
     'debug_toolbar',
-    'markdownx',
+    'tinymce',
     # Local
     'accounts.apps.AccountsConfig',
     'pages.apps.PagesConfig',
