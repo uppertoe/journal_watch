@@ -30,9 +30,8 @@ class ReviewAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.has_perm('accounts.change_author'):
-            fields = list(self.readonly_fields).remove('author')
-            return fields
-        return super.get_readonly_fields(self, request, obj)
+            list(self.readonly_fields).remove('author')
+        return self.readonly_fields
 
 
 class IssueAdmin(admin.ModelAdmin):
@@ -49,9 +48,8 @@ class CommentAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.has_perm('accounts.change_author'):
-            fields = list(self.readonly_fields).remove('author')
-            return fields
-        return super.get_readonly_fields(self, request, obj)
+            list(self.readonly_fields).remove('author')
+        return self.readonly_fields
 
 admin.site.register(Journal, JournalAdmin)
 admin.site.register(Article, ArticleAdmin)
