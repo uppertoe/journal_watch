@@ -21,13 +21,14 @@ from django.urls import path, include
 
 urlpatterns = [
     # Django admin
-    path('database/', admin.site.urls, name='admin'),
+    path('admin/', admin.site.urls, name='admin'),
     # User management
     path('accounts/', include('allauth.urls')),
     # TinyMCE
     path('tinymce/', include('tinymce.urls')),
     # Local apps
     #path('', include('pages.urls')),
+    #path('', include('reviews.urls')),
 ] + static(
     settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
 )
@@ -41,6 +42,6 @@ if settings.DEBUG:
     ] + urlpatterns
 
 # Admin site customisation
-admin.site.site_header = "JournalWatch.io"
-admin.site.site_title = "JournalWatch.io administration"
-admin.site.index_title = "JournalWatch.io Admin"
+admin.site.site_header = "JournalWatch.org.au"
+admin.site.site_title = "JournalWatch.org.au administration"
+admin.site.index_title = "JournalWatch.org.au Admin"
