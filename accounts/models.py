@@ -4,6 +4,14 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 
 
+class HealthService(models.Model):
+    name = models.CharField(max_length=255, blank=False, null=False)
+    url = models.URLField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class CustomUserManager(BaseUserManager):
 
     use_in_migrations = True
@@ -89,6 +97,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
 
     anonymous_author = models.BooleanField(default=False)
+    health_services = models.ManyToManyField(
+        HealthService,
+        related_name='health_services',
+    )
 
     objects = CustomUserManager()
 
@@ -96,3 +108,5 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
