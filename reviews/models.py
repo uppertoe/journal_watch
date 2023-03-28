@@ -11,13 +11,13 @@ from core.utils import unique_slugify
 
 class Journal(TimeStampedModel):
     name = models.CharField(max_length=255, null=False, blank=False)
-    slug = models.SlugField(max_length=255, null=False, unique=True)
+    slug = models.SlugField(max_length=255, null=False, blank=True, unique=True)
     abbreviation = models.CharField(max_length=255, blank=True)
     url = models.URLField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = unique_slugify(self, slugify(self.title))
+            self.slug = unique_slugify(self, slugify(self.name))
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -51,10 +51,12 @@ class Review(TimeStampedModel):
         null=False,
         related_name='reviews'
         )
-    slug = models.SlugField(max_length=255, null=False, unique=True)
+    slug = models.SlugField(max_length=255, null=False, blank=True, unique=True)
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
     body = HTMLField()
 
@@ -70,7 +72,7 @@ class Review(TimeStampedModel):
 class Issue(TimeStampedModel):
     name = models.CharField(max_length=255, null=False, blank=False)
     date = models.DateField()
-    slug = models.SlugField(max_length=255, null=False, unique=True)
+    slug = models.SlugField(max_length=255, null=False, blank=True, unique=True)
     body = HTMLField()
     reviews = models.ManyToManyField(
         Review,
@@ -97,4 +99,6 @@ class Comment(TimeStampedModel):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )

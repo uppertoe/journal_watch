@@ -15,29 +15,43 @@ class SaveAuthorMixin:
 class JournalAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name', 'abbreviation')
+    prepopulated_fields = {'slug': ('name',)}
 
 
-class ArticleAdmin(SaveAuthorMixin, admin.ModelAdmin):
+class ArticleAdmin(admin.ModelAdmin):
     list_display = ('name', 'journal', 'year')
     search_fields = ('name', 'journal')
 
 
-class ReviewAdmin(admin.ModelAdmin):
+class ReviewAdmin(SaveAuthorMixin, admin.ModelAdmin):
     list_display = ('article', 'author')
     list_filter = ('author',)
     search_fields = ('article',)
     readonly_fields = ('slug', 'author')
 
     def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(self.readonly_fields)
         if request.user.has_perm('accounts.change_author'):
-            list(self.readonly_fields).remove('author')
-        return self.readonly_fields
+            readonly_fields.remove('author')
+        return readonly_fields
 
 
 class IssueAdmin(admin.ModelAdmin):
     list_display = ('name', 'date')
     search_fields = ('name', 'reviews')
     readonly_fields = ('slug',)
+    prepopulated_fields = {'slug': ('name',)}
+
+    def get_prepopulated_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return self.prepopulated_fields
+        return {}
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(self.readonly_fields)
+        if request.user.is_superuser:
+            readonly_fields.remove('slug')
+        return readonly_fields
 
 
 class CommentAdmin(admin.ModelAdmin):
@@ -47,9 +61,10 @@ class CommentAdmin(admin.ModelAdmin):
     readonly_fields = ('author',)
 
     def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(self.readonly_fields)
         if request.user.has_perm('accounts.change_author'):
-            list(self.readonly_fields).remove('author')
-        return self.readonly_fields
+            readonly_fields.remove('author')
+        return readonly_fields
 
 admin.site.register(Journal, JournalAdmin)
 admin.site.register(Article, ArticleAdmin)
