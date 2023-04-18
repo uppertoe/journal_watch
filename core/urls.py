@@ -27,8 +27,8 @@ urlpatterns = [
     # TinyMCE
     path('tinymce/', include('tinymce.urls')),
     # Local apps
-    #path('', include('pages.urls')),
-    #path('', include('reviews.urls')),
+    path('', include('pages.urls')),
+    path('', include('reviews.urls')),
 ] + static(
     settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
 )

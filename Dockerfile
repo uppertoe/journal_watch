@@ -1,20 +1,39 @@
-# Pull base image
-FROM python:3.11.2-slim-bullseye
+ARG PYTHON_VERSION=3.10-slim-buster
 
-# Set environment variables
-ENV PIP_DISABLE_PIP_VERSION_CHECK 1
+FROM python:${PYTHON_VERSION}
+
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Set work directory
+RUN mkdir -p /code
+
 WORKDIR /code
 
-# Install dependencies
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+# install psycopg2 + npm dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    g++ \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_19.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g \
+    postcss-cli \
+    autoprefixer \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy project
-COPY . .
+COPY requirements.txt /tmp/requirements.txt
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+RUN set -ex && \
+    pip install --upgrade pip && \
+    pip install -r /tmp/requirements.txt && \
+    rm -rf /root/.cache/
+
+COPY . /code/
+
+RUN python manage.py collectstatic --noinput && \
+    python manage.py compress --force
+
+EXPOSE 8000
+
+CMD ["gunicorn", "--bind", ":8000", "--workers", "2", "core.wsgi"]

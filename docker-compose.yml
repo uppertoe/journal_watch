@@ -11,22 +11,6 @@ services:
       - 3000:3000 # for debugpy
     depends_on:
       - db
-    environment:
-      - "DJANGO_SECRET_KEY=django-insecure-492sh)w^u)^(!iylmt@yq^lvgx5c%)h7g0t-%s)h-xe-8ny(4l"
-      - "DJANGO_SECURE_SSL_REDIRECT=False"
-      - "DJANGO_DEBUG=True"
-      - "DJANGO_SECURE_HSTS_SECONDS=0"
-      - "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=False"
-      - "DJANGO_SECURE_HSTS_PRELOAD=False"
-      - "DJANGO_SESSION_COOKIE_SECURE=False"
-      - "DJANGO_CSRF_COOKIE_SECURE=False"
-      - "DJANGO_TIME_ZONE=Australia/Melbourne"
-      #- "DJANGO_EMAIL_BACKEND="
-      - "EMAIL_HOST="
-      - "EMAIL_HOST_USER="
-      - "EMAIL_HOST_PASSWORD="
-      - "EMAIL_PORT="
-      - "EMAIL_USE_TLS="
   db:
     image: postgres:15
     volumes:

@@ -1,3 +1,4 @@
-.venv
-.git
-.gitignore
+fly.toml
+.git/
+*.sqlite3
+.env

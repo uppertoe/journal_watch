@@ -1,0 +1,22 @@
+// Custom variables
+$white: #ffffff;
+
+$theme-colors: (
+    "light": #cbcdd3,
+    "dark": #144683,
+    "primary": #992d2b,
+    "secondary": #f76951,
+    "info": #ffdb57,
+    "success": #69b900,
+    "warning": #ffc681,
+    "danger": #fc006a,
+);
+
+$btn-close-color: $white;
+
+.asteriskField {
+    display: none;
+}
+
+// Import Bootstrap
+@import "../bootstrap/scss/bootstrap";
