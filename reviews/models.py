@@ -21,7 +21,7 @@ class Tag(models.Model):
     active = models.BooleanField(default=True)
     articles = models.ManyToManyField('Article', related_name='tags')
     
-    def all_articles_list():
+    def all_tags_list():
        tags = (Tag.objects.all()
                  .exclude(active=False)
                  .annotate(article_count=models.Count('articles'))
@@ -35,7 +35,7 @@ class Tag(models.Model):
         return super().save(*args, **kwargs)
     
     def get_absolute_url(self):
-        return reverse('issue-detail', kwargs={'slug': self.slug})
+        return reverse('tag-detail', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.text
@@ -96,7 +96,7 @@ class Article(TimeStampedModel):
                 new_tag.articles.add(self)
                 continue
             except Tag.MultipleObjectsReturned:
-                print(f'Multiple matching tags for {tag}')
+                print(f'Warning: multiple matching tags for {tag}')
                 continue
             match.articles.add(self) #  Will not duplicate relation, but triggers signals
 
@@ -127,6 +127,9 @@ class Review(TimeStampedModel):
         self.pageviews += 1
         return self.pageviews
 
+    def get_absolute_url(self):
+        reverse('review-detail', kwargs={'slug': self.slug})
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = unique_slugify(self, slugify(self.article.name))
@@ -146,6 +149,15 @@ class Issue(TimeStampedModel):
         blank=True,
         related_name='issues',
         )
+    pageviews = models.IntegerField(default=0, blank=True, null=True)
+    active = models.BooleanField(default=False)
+
+    def increment_pageview(self):
+        self.pageviews += 1
+        return self.pageviews
+
+    def get_absolute_url(self):
+        reverse('issue-detail', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.slug:
