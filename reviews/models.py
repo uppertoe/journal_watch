@@ -20,14 +20,9 @@ class Tag(models.Model):
     slug = models.SlugField(max_length=255, null=False, blank=True, unique=True)
     active = models.BooleanField(default=True)
     articles = models.ManyToManyField('Article', related_name='tags')
-    
-    def all_tags_list():
-       tags = (Tag.objects.all()
-                 .exclude(active=False)
-                 .annotate(article_count=models.Count('articles'))
-                 .order_by('-article_count')
-                 .values_list('text', flat=True))
-       return [str(tag) for tag in tags]
+
+    def __str__(self):
+        return self.text
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -37,8 +32,18 @@ class Tag(models.Model):
     def get_absolute_url(self):
         return reverse('tag-detail', kwargs={'slug': self.slug})
 
-    def __str__(self):
-        return self.text
+    def all_tags_list():
+       tags = (Tag.objects.all()
+                 .exclude(active=False)
+                 .annotate(article_count=models.Count('articles'))
+                 .order_by('-article_count')
+                 .values_list('text', flat=True))
+       return [str(tag) for tag in tags]
+
+    def delete_if_orphaned(self):
+        if not self.articles.all().count():
+            print(f'Deleting unused tag {self}')
+            self.delete()
 
 
 class Journal(TimeStampedModel):
@@ -58,7 +63,7 @@ class Journal(TimeStampedModel):
 
 class Article(TimeStampedModel):
     name = models.TextField()
-    tags_string = models.TextField(verbose_name='Add #hashtags that describe this article')
+    tags_string = models.TextField(blank=True, null=False, verbose_name='Add #hashtags that describe this article')
     journal = models.ForeignKey(
         Journal,
         on_delete=models.CASCADE
@@ -92,7 +97,7 @@ class Article(TimeStampedModel):
         Returns a list of unique 'hashtag' strings
         '''
         hashtag_list = []
-        for word in self.text.split(' #'):
+        for word in self.tags_string.split(' #'):
             if slugify(word):  #  Ensure non-empty string after slugify
                 hashtag_list.append(slugify(word[:255]))
         return list(set(hashtag_list))
@@ -118,10 +123,11 @@ class Article(TimeStampedModel):
         return current_tags
 
     def delete_orphan_tag_objects(self, current_tags):
-        tags = self.articles.all()
+        tags = self.tags.all()
         for tag in tags:
             if tag not in current_tags:
-                tag.delete()
+                tag.articles.remove(self)
+                tag.delete_if_orphaned()
 
 
 class Review(TimeStampedModel):
@@ -140,7 +146,7 @@ class Review(TimeStampedModel):
         null=True,
     )
     body = HTMLField()
-    pageviews = models.IntegerField(default=0, blank=True, null=True)
+    pageviews = models.IntegerField(default=0)
     active = models.BooleanField(default=False)
 
     def increment_pageview(self):

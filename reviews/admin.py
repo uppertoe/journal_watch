@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Journal, Article, Review, Issue, Comment
+from . import models
 
 # Register your models here.
 
@@ -66,8 +66,10 @@ class CommentAdmin(admin.ModelAdmin):
             readonly_fields.remove('author')
         return readonly_fields
 
-admin.site.register(Journal, JournalAdmin)
-admin.site.register(Article, ArticleAdmin)
-admin.site.register(Review, ReviewAdmin)
-admin.site.register(Issue, IssueAdmin)
-admin.site.register(Comment, CommentAdmin)
+admin.site.register(models.Journal, JournalAdmin)
+admin.site.register(models.Article, ArticleAdmin)
+admin.site.register(models.Review, ReviewAdmin)
+admin.site.register(models.Issue, IssueAdmin)
+admin.site.register(models.Comment, CommentAdmin)
+admin.site.register(models.Tag)
+
