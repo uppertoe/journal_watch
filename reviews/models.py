@@ -72,13 +72,28 @@ class Article(TimeStampedModel):
         )
     url = models.URLField(max_length=255, null=True, blank=True)
 
+    _original_tags_string = None #  Used to detect when tags_string has been changed on save()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_tags_string = self.tags_string
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.tags_string != self._original_tags_string:
+            current_tags = self.create_tag_objects() #  Creates new tags where necessary
+            self.delete_orphan_tag_objects(current_tags)
+
     def tags_list(self):
         '''
         Returns a list of unique 'hashtag' strings
         '''
         hashtag_list = []
         for word in self.text.split(' #'):
-            if slugify(word):  # Ensure non-empty string after slugify
+            if slugify(word):  #  Ensure non-empty string after slugify
                 hashtag_list.append(slugify(word[:255]))
         return list(set(hashtag_list))
 
@@ -86,22 +101,27 @@ class Article(TimeStampedModel):
         '''
         Creates new Tag objects from the self.tags_string where these
         do not already exist
+        Returns a list of Tags matching the tags_string
         '''
-        for tag in self.tags_list():
+        current_tags = []
+        for text in self.tags_list():
             try:
-                match = Tag.objects.get(name=tag)
+                tag = Tag.objects.get(text=text)
             except Tag.DoesNotExist:
-                new_tag = Tag(text=tag)
-                new_tag.save()
-                new_tag.articles.add(self)
-                continue
+                tag = Tag(text=text)
+                tag.save()
             except Tag.MultipleObjectsReturned:
                 print(f'Warning: multiple matching tags for {tag}')
                 continue
-            match.articles.add(self) #  Will not duplicate relation, but triggers signals
+            tag.articles.add(self) #  Will not duplicate relation, but triggers signals
+            current_tags.append(tag)
+        return current_tags
 
-    def __str__(self):
-        return self.name
+    def delete_orphan_tag_objects(self, current_tags):
+        tags = self.articles.all()
+        for tag in tags:
+            if tag not in current_tags:
+                tag.delete()
 
 
 class Review(TimeStampedModel):
